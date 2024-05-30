@@ -19,6 +19,8 @@ import { DataGrid,GridToolbar } from '@mui/x-data-grid';
 import DateTime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import Box from '@mui/material/Box';
+import { IoMdAddCircleOutline } from "react-icons/io";
+
 
 
 
@@ -102,6 +104,7 @@ function EMICalculatormain() {
   
 
     const [toggleSelector,setToggleSelector]=useState('OFF')
+    const [additionalPaymentToogle,setAdditionalPaymentToogle]=useState("OFF")
 
  
 
@@ -137,6 +140,45 @@ if(emiOverviewData!=null){
 }
 
 
+//additional payment code 
+const [additionalPayments, setAdditionalPayments] = useState([{ date: null, amount: '' }]);
+const [additionalerror, setAdditionalerrorr] = useState('');
+
+const handleAddPayment = () => {
+  if (additionalPayments.length < 5) {
+    setAdditionalPayments([...additionalPayments, { date: null, amount: '' }]);
+  } else {
+    setError('You can add up to 5 additional payments only.');
+  }
+};
+
+// const handleDateChange = (index, date) => {
+//   const newPayments = additionalPayments.map((payment, i) =>
+//     i === index ? { ...payment, date } : payment
+//   );
+//   setAdditionalPayments(newPayments);
+// };
+
+const handleDateChange = (index, date) => {
+  // Format the date as YYYY-MM-DD
+  const formattedDate = date!=null?date.toISOString().split('T')[0]:""
+
+  const newPayments = additionalPayments.map((payment, i) =>
+    i === index ? { ...payment, date: formattedDate } : payment
+  );
+  setAdditionalPayments(newPayments);
+};
+
+const handleAmountChange = (index, amount) => {
+  const newPayments = additionalPayments.map((payment, i) =>
+    i === index ? { ...payment, amount } : payment
+  );
+  setAdditionalPayments(newPayments);
+};
+
+console.log(additionalPayments)
+
+
 
 
 
@@ -147,8 +189,9 @@ if(emiOverviewData!=null){
           const emiDateChoice=emiChoiceDate ? new Date(emiChoiceDate.getTime() - emiChoiceDate.getTimezoneOffset() * 60000).toISOString().substring(0, 10) : '';
           let dateamountSelector={[emiDateChoice==="" ? formattedDate:emiDateChoice]:emiChoice}
           console.log(dateamountSelector)
-          const EMIOverViewresponse = await axios.post("http://192.168.0.236:3001/emi/overall", {principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector});
-          const EMITablesDetailsresponse= await axios.post("http://192.168.0.236:3001/emi/CalcEMI", {principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector});
+          console.log({principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments})
+          const EMIOverViewresponse = await axios.post("http://localhost:3001/emi/overall", {principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
+          const EMITablesDetailsresponse= await axios.post("http://localhost:3001/emi/CalcEMI", {principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
         
 
     //       "principal":3000000,
@@ -174,7 +217,7 @@ if(emiOverviewData!=null){
 
         fetchSystemOverViewData()
 
-    },[principal,rate,tenure,emiChoice,emi,emiChoiceDate,additionapaymentamount,additionalpaymentdateselect,firstEMiDate])
+    },[principal,rate,tenure,emiChoice,emi,emiChoiceDate,additionapaymentamount,additionalpaymentdateselect,firstEMiDate,additionalPayments])
     console.log(principal)
     console.log(emiChoiceDate)
   
@@ -338,14 +381,21 @@ if(emiOverviewData!=null){
     // Define selectorWeekMonthReq outside of useEffect
     const selectorONOFF = () => {
       setToggleSelector((prev) => (prev === "OFF" ? "ON" : "OFF"));
+      
     };
+    const additionalPaymentToogleSelector=()=>{
+      setAdditionalPaymentToogle((prev) => (prev === "OFF" ? "ON" : "OFF"))
+
+    }
   
     useEffect(() => {
       selectorONOFF()
+      additionalPaymentToogleSelector()
     }, []);
 
     console.log(toggleSelector)
 
+    
 
 
   
@@ -564,43 +614,142 @@ if(emiOverviewData!=null){
 <div className='additionalPayment'> 
 <div class="container">
 <div class="row"> 
-<div class="col-12 col-md-12" style={{height:"auto",backgroundColor:"#F3FAF3",borderRadius:"24px",marginBottom:"30px",width:"100%",paddingTop:"50px",paddingBottom:"70px"}}>
- <div class="row"> 
- <p style={{fontSize:"26px",textAlign:"start",fontWeight:"600",marginLeft:"16px"}}>Additional Payment</p> 
+<div
+      className="col-12 col-md-12"
+      style={{
+        height: 'auto',
+        backgroundColor: '#F3FAF3',
+        borderRadius: '24px',
+        marginBottom: '30px',
+        width: '100%',
+        paddingTop: '50px',
+        paddingBottom: '70px',
+      }}
+    >
+      <span style={{fontSize: '26px', textAlign: 'start',fontWeight: '600',}}>Additional Payment
+      {
+       
+       additionalPaymentToogle==="OFF"?<span style={{marginLeft:"70px"}}> <FaToggleOff size="40px" color='green' style={{}} onClick={additionalPaymentToogleSelector}  /></span>:<span style={{marginLeft:"70px"}}> <FaToggleOn size="40px" color='green' style={{}} onClick={additionalPaymentToogleSelector}  /></span>
+       
+      }  
+      
+      
+      </span>
 
+      {
+       
+       additionalPaymentToogle==="OFF"?"":
+      
 
- <div class="col-12 col-md-6" style={{marginTop:"70px"}}>
-    <p style={{fontSize:"18px",textAlign:"center",fontWeight:"600"}}>Date of Additional Payment</p>
+      <div className="row">
+        <p
+          style={{
+            fontSize: '18px',
+            textAlign: 'end',
+            fontWeight: '600',
+            marginLeft: '16px',
+            cursor: 'pointer',
+            paddingRight:"70px"
+          }}
+          onClick={handleAddPayment}
+        >
+          Add More Payments <IoMdAddCircleOutline style={{ color: 'green' }} size="30px" />
+        </p>
+        {error && <div style={{ color: 'red', marginLeft: '16px' }}>{error}</div>}
+        {additionalPayments.map((payment, index) => (
+          <React.Fragment key={index}>
+            <div className="col-6 col-md-6" style={{ marginTop: '70px' }}>
+              <p style={{ fontSize: '18px', textAlign: 'center', fontWeight: '600' }}>
+                Date of Additional Payment
+              </p>
+              <div
+                className="input"
+                style={{
+                  font: 'Urbanist',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                }}
+              >
+                <DatePicker
+                  id="date"
+                  className="form-control"
+                  selected={payment.date}
+                  onChange={(date) => handleDateChange(index, date)}
+                  style={{ width: '100px', height: '100px' }}
+                  placeholderText="dd/mm/yyyy"
+                />
+                <div
+                  style={{
+                    width: '30px',
+                    height: '35.3px',
+                    background: '#439547',
+                    borderBottomRightRadius: '5px',
+                    borderTopRightRadius: '5px',
+                    marginLeft: '-1px',
+                    textAlign: 'center',
+                    justifyContent: 'center',
+                    display: 'flex',
+                    alignItems: 'center',
+                    color: '#fff',
+                    fontSize: '20px',
+                    fontWeight: '500',
+                  }}
+                >
+                  <SlCalender />
+                </div>
+              </div>
+            </div>
 
-  <div className="input" style={{font:"Urbanist",display:"flex",alignItems:"center",justifyContent:"center"}}>
-  <DatePicker id="date" className="form-control" selected={additionalpaymentdateselect} onChange={(date) => setAdditionalpaymentdateselect(date)} style={{ width: "100px",height:"100px" }}  placeholderText="dd/mm/yyyy" />
-    <div style={{width:"30px",height:"35.3px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-1px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}><SlCalender /></div>
+            <div className="col-6 col-md-6">
+              <div style={{ textAlign: 'center', marginTop: '40px' }}>
+                <br />
+                <p style={{ fontSize: '20px', fontWeight: '600', textAlign: 'center' }}>
+                  Enter your Additional Amount
+                </p>
+                <div
+                  className="input"
+                  style={{
+                    font: 'Urbanist',
+                    display: 'flex',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                  }}
+                >
+                  <Input
+                    type="number"
+                    value={payment.amount}
+                    onChange={(e) => handleAmountChange(index, Number(e.target.value))}
+                    style={{ width: '200px' }}
+                  />
+                  <div
+                    style={{
+                      width: '30px',
+                      height: '41px',
+                      background: '#439547',
+                      borderBottomRightRadius: '5px',
+                      borderTopRightRadius: '5px',
+                      marginLeft: '-8px',
+                      textAlign: 'center',
+                      justifyContent: 'center',
+                      display: 'flex',
+                      alignItems: 'center',
+                      color: '#fff',
+                      fontSize: '20px',
+                      fontWeight: '500',
+                    }}
+                  >
+                    ₹
+                  </div>
+                </div>
+              </div>
+            </div>
+          </React.Fragment>
+        ))}
+      </div>
+      }
     </div>
-  </div>
 
- <div class="col-12 col-md-6"> 
-
-  <div style={{textAlign:"start",marginTop:"40px"}}> 
-     {/* <span style={{fontSize:"18px",fontWeight:"600"}}>Additional Periodic Payment Frequency</span> */}
-<br/>
-        <p style={{fontSize:"20px",fontWeight:"600",textAlign:"center"}}>Enter your Additional Amount</p>
-     <div className="input" style={{font:"Urbanist",display:"flex",justifyContent:"center",alignItems:"center"}} >
-
-            <Input
-          type="number"
-          value={additionapaymentamount}
-          onChange={(e) => setAdditionalpaymentamount(Number(e.target.value))}
-          style={{width:"200px"}}
-        />
-        <div style={{width:"30px",height:"41px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-8px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}>₹</div>
-        </div>
-  </div>
-  </div>
-
- 
-
- </div>
-</div>
 </div>
  
 
