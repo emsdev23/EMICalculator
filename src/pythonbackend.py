@@ -187,6 +187,10 @@ def peak_demand_date(data: dict, db: mysql.connector.connect = Depends(get_meter
    
        additionalot = []
        additionalone = {}
+       checkValue = []
+       limit = 0
+
+       value_is_not_none = any(value is not None for value in dateAmount.values())
 
        outstanding_principal = principal
 
@@ -195,33 +199,34 @@ def peak_demand_date(data: dict, db: mysql.connector.connect = Depends(get_meter
                additionalot.append(i)
 
        if firstdate:
+        #    if value_is_not_none:
+            #    print(dateAmount)
+            #    emi = next(iter(dateAmount.values()))
+            #    time, time_years = calculate_loan_tenure(principal, rate, emi)
+            #    monthly_rate = rate / (12 * 100) 
+            #    interest = round(principal * monthly_rate)
+
+            #    estDate = getDatesMonth(firstdate,time)
+               
+            #    if time == "Lower EMI":
+            #        print({"lessEmi":interest})
+
+            #        return {"lessEmi":interest}
 
            if time:
-               emi = emi_calculator(principal, rate, time)
-               monthly_rate = rate / (12 * 100) 
+              emi = emi_calculator(principal, rate, time)
+              monthly_rate = rate / (12 * 100) 
 
-               estDate = getDates(firstdate,time)
+              estDate = getDates(firstdate,time)
 
-           elif dateAmount and (time == 0 or time == None):
-               print(dateAmount)
-               emi = next(iter(dateAmount.values()))
-               time, time_years = calculate_loan_tenure(principal, rate, emi)
-               monthly_rate = rate / (12 * 100) 
-               interest = round(principal * monthly_rate)
-
-               estDate = getDatesMonth(firstdate,time)
-               
-               if time == "Lower EMI":
-                   print({"lessEmi":interest})
-
-                   return {"lessEmi":interest}
-               
            totalInterest = 0
            
            for i in estDate:
                interest = round(outstanding_principal * monthly_rate)
                principal_component = round(emi - interest)
                outstanding_principal -= round(principal_component)
+               
+               checkValue.append(interest)
 
                totalInterest += interest
 
@@ -243,8 +248,13 @@ def peak_demand_date(data: dict, db: mysql.connector.connect = Depends(get_meter
            totalInterestp = round((totalInterest/(totalInterest+principal))*100)
            principalp = round((principal/(totalInterest+principal))*100)
            total = totalInterest+principal
+
+          
+
+           if len(checkValue) > 0:
+            limit = checkValue[0]
            
-           emi_list.append({'totalInterest':totalInterest,'principal':principal,"checkValue":interest,
+           emi_list.append({'totalInterest':totalInterest,'principal':principal,"checkValue":limit,
                            'totalInterestp':totalInterestp,'principalp':principalp,"emi":round(emi),'TotalPayment':total})
    
    except mysql.connector.Error as e:
@@ -396,7 +406,12 @@ def peak_demand_date(data: dict, db: mysql.connector.connect = Depends(get_meter
 
                    if outstanding_principal <= 0:
                        break
-
+       total_interest = 0  
+       total_principal = 0              
+       for i in emi_list:
+           total_interest += i['interest']
+           total_principal += i['principal']     
+       print(total_interest,total_principal)     
    except mysql.connector.Error as e:
        return JSONResponse(content={"error": ["MySQL connection error",e]}, status_code=500)
 

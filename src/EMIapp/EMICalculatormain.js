@@ -20,6 +20,7 @@ import DateTime from 'react-datetime';
 import 'react-datetime/css/react-datetime.css';
 import Box from '@mui/material/Box';
 import { IoMdAddCircleOutline } from "react-icons/io";
+import { FiAlertTriangle } from "react-icons/fi";
 
 
 
@@ -85,6 +86,21 @@ function EMICalculatormain() {
     
 
 
+
+ // Get the current date
+const now = new Date();
+
+// Extract year, month, and day
+const year = now.getFullYear();
+const month = String(now.getMonth() + 1).padStart(2, '0'); // getMonth() returns month index (0-11)
+const day = String(now.getDate()).padStart(2, '0');
+
+// Format the date as "YYYY-MM-DD"
+const currentdate = `${year}-${month}-${day}`;
+
+console.log(currentdate); // Output: e.g., "2024-05-31"
+
+
     const [principal, setPrincipal] = useState(500000);
     const [rate, setRate] = useState(15);
     const [tenure, setTenure] = useState(2);
@@ -107,7 +123,6 @@ function EMICalculatormain() {
     const [additionalPaymentToogle,setAdditionalPaymentToogle]=useState("OFF")
 
  
-
     // additionalone:{}
 
 
@@ -139,7 +154,26 @@ if(emiOverviewData!=null){
 
 }
 
+console.log(checkValue)
 
+
+
+
+let TotalInterestTable=0
+let TotalPrincipalTable=0
+let TolatPaymetAmount=0
+
+
+for(let i=0;i<emiCalcTable.length;i++){
+  TotalInterestTable=TotalInterestTable+emiCalcTable[i].interest
+}
+
+TolatPaymetAmount=(TotalInterestTable+resposneprincipal)
+
+
+
+
+console.log(TotalInterestTable)
 //additional payment code 
 const [additionalPayments, setAdditionalPayments] = useState([{ date: null, amount: '' }]);
 const [additionalerror, setAdditionalerrorr] = useState('');
@@ -223,7 +257,7 @@ console.log(additionalPayments)
   
     console.log(emiOverviewData)
     
-    console.log(emiCalcTable.lessEmi)
+    console.log(emiCalcTable)
     const requestObject={"principal":principal,"rate":rate,"year":tenure,"emi":emiChoice,"firstdate":emiChoiceDate, dateAmount: {
       [emiChoiceDate]: emiChoice // Use computed property name
     }}
@@ -288,7 +322,7 @@ console.log(additionalPayments)
       const rows = Array.isArray(emiCalcTable) ? emiCalcTable.map((log, index) => ({
         id: index + 1,
         date: new Date(log.date),
-        EMI: log.EMI,
+        EMI: Math.trunc(log.EMI),
         additionalpayment: log.additionalpayment,
         balance: log.balance,
         interest: log.interest,
@@ -303,9 +337,9 @@ console.log(additionalPayments)
       const handleInputBlur = () => {
         const value = Number(emiChoice);
         if (value <= checkValue) {
-          setError(`EMI must be greater than ${checkValue}`);
+          setErrorCase(`EMI must be greater than ${checkValue}`);
         } else {
-          setError('');
+          setErrorCase('');
           setEmiChoice(value)
           //fetchSystemOverViewData(); // Fetch data when input is valid and input loses focus
         }
@@ -316,7 +350,7 @@ console.log(additionalPayments)
           handleInputBlur();
         }
       };
-    
+    console.log(errorCase)
       console.log(emiCalcTable)
 
     const loanChart= {
@@ -363,14 +397,14 @@ console.log(additionalPayments)
               data: [
                   {
                       name: 'Principal Loan Amount',
-                      y: responseprincipalPercentage,
+                      y: resposneprincipal,
                       color:"#6CBC6F"
                   },
                   {
                       name: 'Total Interest',
                       sliced: true,
                       selected: true,
-                      y: totalInterestPercentage,
+                      y: TotalInterestTable,
                       color:"#234425"
                   },
               ]
@@ -396,6 +430,9 @@ console.log(additionalPayments)
     console.log(toggleSelector)
 
     
+
+
+
 
 
   
@@ -459,7 +496,7 @@ console.log(additionalPayments)
   
         <Slider
          min={1}
-         max={20}
+         max={60}
          step={0.1}
          value={rate}
           onChange={(value) => setRate(value)}
@@ -478,7 +515,7 @@ console.log(additionalPayments)
         <br/>
         <RangeLabels>
           <span>0</span>
-          <span>20%</span>
+          <span>60%</span>
         </RangeLabels>
       </div>
 
@@ -527,11 +564,15 @@ console.log(additionalPayments)
       
       <div className="input" style={{font:"Urbanist",display:"flex",justifyContent:"center",alignItems:"center"}} >
       <span style={{fontSize:"18px",fontWeight:"600",marginRight:"60px"}} >Initial  EMI Date</span>
-      <DatePicker id="date" className="form-control" selected={firstEMiDate} onChange={(date) => setFirstEMiDate(date)} style={{ width: "100px",height:"100px" }}  placeholderText="dd/mm/yyyy" />
+      <DatePicker id="date" className="form-control" selected={firstEMiDate} onChange={(date) => setFirstEMiDate(date)} style={{ width: "100px",height:"100px" }}  placeholderText="dd-mm-yyyy" />
+      
     <div style={{width:"30px",height:"35.3px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-1px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}><SlCalender /></div>
     </div>
 
       </div>
+      {
+        firstEMiDate===null?<span style={{color:"red",textAlign:"center"}}> <FiAlertTriangle/> <b>Please select a  Date</b></span>:""
+      }
 
       <div style={{borderTop:"3px solid #73bf8b",borderBottom:"3px solid #73bf8b",height:"100px",marginTop:"50px",display:"flex",justifyContent:"center",alignItems:"center",width:"90%",marginLeft:"auto",marginRight:"auto"}}>
        <span style={{fontSize:"26px",fontWeight:"600"}}>Calculated EMI</span> <span style={{fontSize:"36px",marginLeft:"30px"}}> ₹ { emi }</span>
@@ -540,7 +581,7 @@ console.log(additionalPayments)
 
 
         <div style={{marginTop:"30px"}}> 
-            <span style={{fontSize:"18px",fontWeight:"600",textAlign:"start",alignItems:"start",display:"flex"}}>Enter your own EMI Choice  
+            <span style={{fontSize:"18px",fontWeight:"600",textAlign:"start",alignItems:"start",display:"flex"}}>Enter an  EMI  of your Choice  
             {
               toggleSelector==="OFF"? <span style={{marginLeft:"70px"}}> <FaToggleOff size="40px" color='green' style={{}} onClick={selectorONOFF}  /></span>: <span style={{marginLeft:"70px"}}> <FaToggleOn size="40px" color='green' style={{}} onClick={selectorONOFF}  /></span>
             }
@@ -563,7 +604,13 @@ console.log(additionalPayments)
       onKeyDown={handleKeyDown}
       style={{ marginRight: "20px" }}
     />
-    <p>{error && <div style={{ color: 'red' }}>{error}</div>}</p>
+    <p style={{color:"red"}}> 
+      {
+        emiChoice <= checkValue? `EMI must greater that ${checkValue}`:""
+      }
+    </p>
+
+    {/* <p>{errorCase && <div style={{ color: 'red' }}>{errorCase}</div>}</p> */}
   
         
          
@@ -594,7 +641,7 @@ console.log(additionalPayments)
 <div class="col-6 col-md-6" style={{marginLeft:"0px"}}> 
 <p style={{fontSize:"18px",fontWeight:"600",whiteSpace:"pre"}}>Total Interest</p>
 <div style={{width:"100%",height:"90%",backgroundColor:"#234425",alignItems:"center",borderRadius:"5px",display:"flex",justifyContent:"center",fontSize:"20px",color:"#fff"}}>
-₹ {totalInterest}
+₹ {TotalInterestTable}
 
 </div>
 </div>
@@ -603,7 +650,7 @@ console.log(additionalPayments)
 </div>
   
 <div style={{borderTop:"3px solid #73bf8b",height:"100px",marginTop:"100px",display:"flex",justifyContent:"center",alignItems:"center",width:"90%",marginLeft:"auto",marginRight:"auto"}}> 
-  <span style={{fontSize:"18px",fontWeight:"600",marginRight:"20px"}}>Total Payment</span> <span style={{fontSize:"27px"}}> ₹ {TotalPayment}</span>
+  <span style={{fontSize:"18px",fontWeight:"600",marginRight:"20px"}}>Total Payment</span> <span style={{fontSize:"27px"}}> ₹ {TolatPaymetAmount}</span>
   </div>
 
   
@@ -656,12 +703,20 @@ console.log(additionalPayments)
           Add More Payments <IoMdAddCircleOutline style={{ color: 'green' }} size="30px" />
         </p>
         {error && <div style={{ color: 'red', marginLeft: '16px' }}>{error}</div>}
-        {additionalPayments.map((payment, index) => (
-          <React.Fragment key={index}>
-            <div className="col-6 col-md-6" style={{ marginTop: '70px' }}>
-              <p style={{ fontSize: '18px', textAlign: 'center', fontWeight: '600' }}>
+        <div className="col-6 col-md-6" style={{ marginTop: '0px' }}>
+        <p style={{ fontSize: '18px', textAlign: 'center', fontWeight: '600' }}>
                 Date of Additional Payment
               </p>
+         </div>
+         <div className="col-6 col-md-6" style={{ marginTop: '0px' }}>
+         <p style={{ fontSize: '20px', fontWeight: '600', textAlign: 'center' }}>
+                  Enter your Additional Amount
+                </p>
+        </div>
+        {additionalPayments.map((payment, index) => (
+          <React.Fragment key={index}>
+            <div className="col-6 col-md-6" style={{ marginTop: '0px' }}>
+              
               <div
                 className="input"
                 style={{
@@ -702,11 +757,8 @@ console.log(additionalPayments)
             </div>
 
             <div className="col-6 col-md-6">
-              <div style={{ textAlign: 'center', marginTop: '40px' }}>
-                <br />
-                <p style={{ fontSize: '20px', fontWeight: '600', textAlign: 'center' }}>
-                  Enter your Additional Amount
-                </p>
+              <div style={{ textAlign: 'center', marginTop: '0px' }}>
+                
                 <div
                   className="input"
                   style={{
