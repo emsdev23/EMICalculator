@@ -101,11 +101,11 @@ const currentdate = `${year}-${month}-${day}`;
 console.log(currentdate); // Output: e.g., "2024-05-31"
 
 
-    const [principal, setPrincipal] = useState(500000);
-    const [rate, setRate] = useState(15);
-    const [tenure, setTenure] = useState(2);
+    const [principal, setPrincipal] = useState("500000");
+    const [rate, setRate] = useState("15");
+    const [tenure, setTenure] = useState("2");
     const[firstEMiDate,setFirstEMiDate]=useState(null)
-    const[emiChoice,setEmiChoice]=useState(null)
+    const[emiChoice,setEmiChoice]=useState("")
     const [emiChoiceDate,setEmiChoiceDate]=useState(null)
     const [error, setError] = useState('');
     const[errorCase,setErrorCase]=useState()
@@ -221,11 +221,11 @@ console.log(additionalPayments)
         try {
           const formattedDate = firstEMiDate ? new Date(firstEMiDate.getTime() - firstEMiDate.getTimezoneOffset() * 60000).toISOString().substring(0, 10) : '';
           const emiDateChoice=emiChoiceDate ? new Date(emiChoiceDate.getTime() - emiChoiceDate.getTimezoneOffset() * 60000).toISOString().substring(0, 10) : '';
-          let dateamountSelector={[emiDateChoice==="" ? formattedDate:emiDateChoice]:emiChoice}
+          let dateamountSelector={[emiDateChoice==="" ? formattedDate:emiDateChoice]:parseInt(emiChoice)}
           console.log(dateamountSelector)
           console.log({principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments})
-          const EMIOverViewresponse = await axios.post("http://localhost:3001/emi/overall", {principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
-          const EMITablesDetailsresponse= await axios.post("http://localhost:3001/emi/CalcEMI", {principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
+          const EMIOverViewresponse = await axios.post("http://http://10x.respark.iitm.ac.in/:3001/emi/overall", {principal: parseInt(principal),rate:parseInt(rate),year:parseInt(tenure),firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
+          const EMITablesDetailsresponse= await axios.post("http://http://10x.respark.iitm.ac.in/:3001/emi/CalcEMI", {principal: parseInt(principal),rate:parseInt(rate),year:parseInt(tenure),firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
         
 
     //       "principal":3000000,
@@ -330,38 +330,38 @@ console.log(additionalPayments)
       })) : [];
 
 
-      const handleEmiChoiceChange = (e) => {
-        setEmiChoice(e.target.value);
-      };
+      // const handleEmiChoiceChange = (e) => {
+      //   setEmiChoice(e.target.value);
+      // };
     
-      const handleInputBlur = () => {
-        const value = Number(emiChoice);
-        if (value <= checkValue) {
-          setErrorCase(`EMI must be greater than ${checkValue}`);
-        } else {
-          setErrorCase('');
-          setEmiChoice(value)
-          //fetchSystemOverViewData(); // Fetch data when input is valid and input loses focus
-        }
-      };
+      // const handleInputBlur = () => {
+      //   const value = Number(emiChoice);
+      //   if (value <= checkValue) {
+      //     setErrorCase(`EMI must be greater than ${checkValue}`);
+      //   } else {
+      //     setErrorCase('');
+      //     setEmiChoice(value)
+      //     //fetchSystemOverViewData(); // Fetch data when input is valid and input loses focus
+      //   }
+      // };
 
-      const handleKeyDown = (e) => {
-        if (e.key === 'Enter') {
-          handleInputBlur();
-        }
-      };
+      // const handleKeyDown = (e) => {
+      //   if (e.key === 'Enter') {
+      //     handleInputBlur();
+      //   }
+      // };
     console.log(errorCase)
       console.log(emiCalcTable)
 
     const loanChart= {
       chart: {
-          type: 'pie'
+          type: 'pie',
       },
       title: {
           text: null
       },
       tooltip: {
-          valueSuffix: '%'
+          valueSuffix: ''
       },
       subtitle: {
           text:null
@@ -370,10 +370,7 @@ console.log(additionalPayments)
           series: {
               allowPointSelect: true,
               cursor: 'pointer',
-              dataLabels: [{
-                  enabled: true,
-                  distance: 20
-              }, {
+              dataLabels: [ {
                   enabled: true,
                   distance: -40,
                   format: '{point.percentage:.1f}%',
@@ -392,19 +389,19 @@ console.log(additionalPayments)
       },
       series: [
           {
-              name: 'Percentage',
+              name: '',
               colorByPoint: true,
               data: [
                   {
                       name: 'Principal Loan Amount',
-                      y: resposneprincipal,
+                      y: firstEMiDate===null ?500000:resposneprincipal,
                       color:"#6CBC6F"
                   },
                   {
                       name: 'Total Interest',
                       sliced: true,
                       selected: true,
-                      y: TotalInterestTable,
+                      y:firstEMiDate===null?81840:TotalInterestTable,
                       color:"#234425"
                   },
               ]
@@ -447,9 +444,9 @@ console.log(additionalPayments)
         <div className="input" style={{font:"Urbanist",display:"flex",justifyContent:"center",alignItems:"center"}} >
             <span style={{fontSize:"18px",fontWeight:"600"}}>Loan Amount</span> 
             <Input
-          type="number"
+          type="text"
           value={principal}
-          onChange={(e) => setPrincipal(Number(e.target.value))}
+          onChange={(e) => setPrincipal((e.target.value))}
         />
         <div style={{width:"30px",height:"41px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-8px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}>₹</div>
         </div>
@@ -486,9 +483,9 @@ console.log(additionalPayments)
         <div className="input" style={{font:"Urbanist",display:"flex",justifyContent:"center",alignItems:"center"}} >
          <span style={{fontSize:"18px",fontWeight:"600"}}>Interest Rate (p.a)</span>
             <Input
-          type="number"
+          type="text"
           value={rate}
-          onChange={(e) => setRate(Number(e.target.value))}
+          onChange={(e) => setRate((e.target.value))}
         />
         <div style={{width:"30px",height:"41px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-8px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}>%</div>
         </div>
@@ -527,9 +524,9 @@ console.log(additionalPayments)
         <div className="input" style={{font:"Urbanist",display:"flex",justifyContent:"center",alignItems:"center"}} >
         <span style={{fontSize:"18px",fontWeight:"600"}} >Loan tenure</span>
             <Input
-          type="number"
+          type="text"
           value={tenure}
-          onChange={(e) => setTenure(Number(e.target.value))}
+          onChange={(e) => setTenure((e.target.value))}
         />
         <div style={{width:"30px",height:"41px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-8px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}>yr</div>
         </div>
@@ -590,36 +587,45 @@ console.log(additionalPayments)
 
            {
             toggleSelector==="OFF"?"":
+            
            
 
             
-            <div className="input" style={{font:"Urbanist",display:"flex",alignItems:"center"}} >
+            <div className="input" style={{font:"Urbanist",display:"flex",alignItems:"center",justifyContent:"center",marginLeft:"-60px",paddingRight:"40px"}} >
+              
 
 
     <Input
-      type="number"
+      type="text"
       value={emiChoice}
-      onChange={handleEmiChoiceChange}
-      onBlur={handleInputBlur}
-      onKeyDown={handleKeyDown}
-      style={{ marginRight: "20px" }}
+      // onChange={handleEmiChoiceChange}
+      onChange={(e) => setEmiChoice((e.target.value))}
+      // onBlur={handleInputBlur}
+      // onKeyDown={handleKeyDown}
+      style={{ marginRight: "0px",width:"80%" }}
     />
-    <p style={{color:"red"}}> 
+         <div style={{width:"70px",height:"40px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-30px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}>₹</div>
+    <br/>
       {
-        emiChoice <= checkValue? `EMI must greater that ${checkValue}`:""
+        emiChoice <= checkValue? <p style={{color:"red",fontSize:"13px",fontWeight:"600",display:"block",marginLeft:"10px",marginRight:"10px",whiteSpace:"pre"}}>EMI <br/>must be  greater <br/>  than {checkValue}</p>:""
       }
-    </p>
+   
 
     {/* <p>{errorCase && <div style={{ color: 'red' }}>{errorCase}</div>}</p> */}
   
         
          
 
-<DatePicker id="date" className="form-control" selected={emiChoiceDate} onChange={(date) => setEmiChoiceDate(date)} style={{ width: "100px",height:"100px" }}  placeholderText="dd/mm/yyyy"   />
+<div style={{ width: "80%",height:"100px",display:"flex",marginTop:"60px"}} >
+<DatePicker id="date" className="form-control" selected={emiChoiceDate} onChange={(date) => setEmiChoiceDate(date)}  placeholderText="dd/mm/yyyy"   />
+
         <div style={{width:"30px",height:"35.3px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-1px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}><SlCalender /></div>
         </div>
-        }
         </div>
+        }
+        
+        </div>
+        
 
 
    
@@ -633,7 +639,10 @@ console.log(additionalPayments)
 <div class="col-6 col-md-6" style={{marginLeft:"0px"}}> 
 <p style={{fontSize:"18px",fontWeight:"600",whiteSpace:"pre"}}>Principal Loan Amount</p>
 <div style={{width:"100%",height:"90%",backgroundColor:"#6CBC6F",alignItems:"center",borderRadius:"5px",display:"flex",justifyContent:"center",fontSize:"20px",color:"#fff"}}>
-₹ {resposneprincipal}
+₹ { 
+  firstEMiDate===null?"500000":resposneprincipal
+
+}
 
 </div>
 </div>
@@ -641,7 +650,12 @@ console.log(additionalPayments)
 <div class="col-6 col-md-6" style={{marginLeft:"0px"}}> 
 <p style={{fontSize:"18px",fontWeight:"600",whiteSpace:"pre"}}>Total Interest</p>
 <div style={{width:"100%",height:"90%",backgroundColor:"#234425",alignItems:"center",borderRadius:"5px",display:"flex",justifyContent:"center",fontSize:"20px",color:"#fff"}}>
-₹ {TotalInterestTable}
+₹ { 
+
+firstEMiDate===null?"81840":TotalInterestTable
+
+
+}
 
 </div>
 </div>
@@ -650,7 +664,7 @@ console.log(additionalPayments)
 </div>
   
 <div style={{borderTop:"3px solid #73bf8b",height:"100px",marginTop:"100px",display:"flex",justifyContent:"center",alignItems:"center",width:"90%",marginLeft:"auto",marginRight:"auto"}}> 
-  <span style={{fontSize:"18px",fontWeight:"600",marginRight:"20px"}}>Total Payment</span> <span style={{fontSize:"27px"}}> ₹ {TolatPaymetAmount}</span>
+  <span style={{fontSize:"18px",fontWeight:"600",marginRight:"20px"}}>Total Payment</span> <span style={{fontSize:"27px"}}> ₹ {  firstEMiDate===null?(parseInt(500000+81840)):TolatPaymetAmount}</span>
   </div>
 
   
@@ -696,7 +710,8 @@ console.log(additionalPayments)
             fontWeight: '600',
             marginLeft: '16px',
             cursor: 'pointer',
-            paddingRight:"70px"
+            paddingRight:"70px",
+            marginBottom:"50px"
           }}
           onClick={handleAddPayment}
         >
@@ -704,18 +719,18 @@ console.log(additionalPayments)
         </p>
         {error && <div style={{ color: 'red', marginLeft: '16px' }}>{error}</div>}
         <div className="col-6 col-md-6" style={{ marginTop: '0px' }}>
-        <p style={{ fontSize: '18px', textAlign: 'center', fontWeight: '600' }}>
-                Date of Additional Payment
+        <p style={{ fontSize: '18px', textAlign: 'center', fontWeight: '600',whiteSpace:"pre" }}>
+                Date of Additional <br/> Payment
               </p>
          </div>
          <div className="col-6 col-md-6" style={{ marginTop: '0px' }}>
-         <p style={{ fontSize: '20px', fontWeight: '600', textAlign: 'center' }}>
-                  Enter your Additional Amount
+         <p style={{ fontSize: '18px', fontWeight: '600', textAlign: 'center' }}>
+                  Enter your  Additional <br/> Amount
                 </p>
         </div>
         {additionalPayments.map((payment, index) => (
           <React.Fragment key={index}>
-            <div className="col-6 col-md-6" style={{ marginTop: '0px' }}>
+            <div className="col-6 col-md-6" style={{ marginTop: '10px' }}>
               
               <div
                 className="input"
@@ -757,7 +772,7 @@ console.log(additionalPayments)
             </div>
 
             <div className="col-6 col-md-6">
-              <div style={{ textAlign: 'center', marginTop: '0px' }}>
+              <div style={{ textAlign: 'center', marginRight: '50px' }}>
                 
                 <div
                   className="input"
@@ -772,7 +787,7 @@ console.log(additionalPayments)
                     type="number"
                     value={payment.amount}
                     onChange={(e) => handleAmountChange(index, Number(e.target.value))}
-                    style={{ width: '200px' }}
+                    style={{ width: '180px' }}
                   />
                   <div
                     style={{

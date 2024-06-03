@@ -16,6 +16,7 @@ function App() {
     <p style={{fontSize:"18px"}}>When you get a loan, how often do you think about the interest amount you pay as part of your EMI?</p>
     <p style={{fontSize:"18px",marginTop:"0px"}}>Did you know that by smartly planning your repayments as your income grows, you can quickly finish your loan and save a significant  <br/> amount of money that would have otherwise been paid solely as interest?</p>
     <p style={{fontSize:"18px",marginTop:"0px"}}>Have you used tools that can precisely assist you in managing loans efficiently?</p>
+    <p style={{fontSize:"18px"}}> To help you with this, the Fintech for Inclusion team at IITM Research Park  has developed a  <span style={{color:"#6CBC6F"}}>SMART LOAN CALCULATOR</span> . Check it Out ! </p>
     
     <br/>
 

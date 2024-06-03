@@ -12,8 +12,8 @@ function Navbar() {
         <header className='navbar'>
     
 <div class="container"> 
-<div className='logocontainer logoone'><img src={tenxlogo} alt="logo1" /></div>
-<div  className='logocontainer logotwo'><img src={researchpark} alt="logo1" style={{width:"90px",height:"90px"}}/></div>
+<div className='logocontainer logoone'><img src={tenxlogo} alt="logo1"  style={{width:"180px",height:"80px"}}/></div>
+<div  className='logocontainer logotwo'><img src={researchpark} alt="logo1" style={{width:"110px",height:"80px"}}/></div>
 <div   className='logocontainer logothree'><img src={incubation} alt="logo1" style={{width:"90px",height:"90px"}}/></div> 
 </div>
 <div className='line'> </div>
