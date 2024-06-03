@@ -224,8 +224,8 @@ console.log(additionalPayments)
           let dateamountSelector={[emiDateChoice==="" ? formattedDate:emiDateChoice]:parseInt(emiChoice)}
           console.log(dateamountSelector)
           console.log({principal: principal,rate:rate,year:tenure,firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments})
-          const EMIOverViewresponse = await axios.post("http://http://10x.respark.iitm.ac.in/:3001/emi/overall", {principal: parseInt(principal),rate:parseInt(rate),year:parseInt(tenure),firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
-          const EMITablesDetailsresponse= await axios.post("http://http://10x.respark.iitm.ac.in/:3001/emi/CalcEMI", {principal: parseInt(principal),rate:parseInt(rate),year:parseInt(tenure),firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
+          const EMIOverViewresponse = await axios.post("http://10x.respark.iitm.ac.in:3001/emi/overall", {principal: parseInt(principal),rate:parseInt(rate),year:parseInt(tenure),firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
+          const EMITablesDetailsresponse= await axios.post("http://10x.respark.iitm.ac.in:3001/emi/CalcEMI", {principal: parseInt(principal),rate:parseInt(rate),year:parseInt(tenure),firstdate:formattedDate,dateAmount:dateamountSelector,additionalone:additionalPayments});
         
 
     //       "principal":3000000,
@@ -330,6 +330,14 @@ console.log(additionalPayments)
       })) : [];
 
 
+      let LoanYearEnd=emiCalcTable[emiCalcTable.length-1]
+      //undefined
+      console.log(emiCalcTable[emiCalcTable.length-1])
+      let YearEndDate=""
+      // for(let i=0;i<LoanYearEnd.length;i++){
+      //   YearEndDate=LoanYearEnd[i].date
+      // }
+      
       // const handleEmiChoiceChange = (e) => {
       //   setEmiChoice(e.target.value);
       // };
@@ -604,7 +612,7 @@ console.log(additionalPayments)
       // onKeyDown={handleKeyDown}
       style={{ marginRight: "0px",width:"80%" }}
     />
-         <div style={{width:"70px",height:"40px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-30px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}>₹</div>
+         <div style={{width:"70px",height:"40px",background:"#439547",borderBottomRightRadius:"5px",borderTopRightRadius:"5px",marginLeft:"-15px",textAlign:"center",justifyContent:"center",display:"flex",alignItems:"center",color:"#fff",fontSize:"20px"  ,fontWeight:"500"}}>₹</div>
     <br/>
       {
         emiChoice <= checkValue? <p style={{color:"red",fontSize:"13px",fontWeight:"600",display:"block",marginLeft:"10px",marginRight:"10px",whiteSpace:"pre"}}>EMI <br/>must be  greater <br/>  than {checkValue}</p>:""
@@ -662,7 +670,9 @@ firstEMiDate===null?"81840":TotalInterestTable
 
 </div>
 </div>
-  
+<div style={{marginTop:"80px",fontSize:"18px",fontWeight:"600"}}>
+<span>Loan Tenure ends by :  {LoanYearEnd==undefined?"":LoanYearEnd.date}</span>
+</div>
 <div style={{borderTop:"3px solid #73bf8b",height:"100px",marginTop:"100px",display:"flex",justifyContent:"center",alignItems:"center",width:"90%",marginLeft:"auto",marginRight:"auto"}}> 
   <span style={{fontSize:"18px",fontWeight:"600",marginRight:"20px"}}>Total Payment</span> <span style={{fontSize:"27px"}}> ₹ {  firstEMiDate===null?(parseInt(500000+81840)):TolatPaymetAmount}</span>
   </div>
@@ -784,7 +794,7 @@ firstEMiDate===null?"81840":TotalInterestTable
                   }}
                 >
                   <Input
-                    type="number"
+                    type="text"
                     value={payment.amount}
                     onChange={(e) => handleAmountChange(index, Number(e.target.value))}
                     style={{ width: '180px' }}
